@@ -1,0 +1,288 @@
+// =============================================================================
+// BadgerBots color scheme
+//
+// Ported from the Archive app's theme system (../archive/frontend/src/theme).
+// Two layers, same split Archive uses:
+//
+//   1. --theme-* custom properties: the runtime palette. `:root` carries the
+//      greyscale light theme; `[data-theme="dark"]` carries Ayu Dark. The
+//      toggle in the header flips that one attribute on <html>.
+//   2. Just the Docs' own Sass variables: compile-time, so they can't follow
+//      the toggle. They're set to the light theme's values here (a sane
+//      no-JS baseline) and the rules in _sass/custom/custom.scss re-point the
+//      visible surfaces at the --theme-* vars.
+//
+// Every color below traces back to a named palette entry in Archive:
+// appleLight/appleDark (applePalette.ts) for light, the `ayu` object
+// (ayuDark.ts) for dark. Don't invent hexes here — add a mapping instead.
+// =============================================================================
+
+// Note: just-the-docs.scss.liquid already imports ./color_schemes/light before
+// this file, so there is no @import for it here — re-importing would emit the
+// bundled syntax-highlight stylesheet a second time.
+
+// ----------------------------------------------------------------- Typefaces
+
+// JetBrains Mono Variable — the UI face. Same family Archive loads via
+// @fontsource-variable/jetbrains-mono; the woff2 files are copied from that
+// package into assets/fonts. Paths are relative to the compiled stylesheet
+// (assets/css/…), so they survive the --baseurl the Pages build passes.
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  src: url("../fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  src: url("../fonts/jetbrains-mono-latin-wght-italic.woff2") format("woff2-variations");
+  font-weight: 100 800;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  src: url("../fonts/jetbrains-mono-latin-ext-wght-normal.woff2") format("woff2-variations");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  src: url("../fonts/jetbrains-mono-latin-ext-wght-italic.woff2") format("woff2-variations");
+  font-weight: 100 800;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+// CMU Serif — the document face (Archive's rendered-note font, see
+// features/text/noteMarkdown.css). Four real cuts ship in assets/fonts:
+// roman, bold, italic, bold-italic. The previous rules here used a
+// `font_url()` helper that doesn't exist in Sass (it was emitted into the CSS
+// verbatim) and `format('ttf')` instead of `format('truetype')`, so none of
+// them ever loaded.
+@font-face {
+  font-family: "CMU Serif";
+  src: url("../fonts/cmunrm.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "CMU Serif";
+  src: url("../fonts/cmunbx.ttf") format("truetype");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "CMU Serif";
+  src: url("../fonts/cmunti.ttf") format("truetype");
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "CMU Serif";
+  src: url("../fonts/cmunbi.ttf") format("truetype");
+  font-weight: bold;
+  font-style: italic;
+  font-display: swap;
+}
+
+// CMU Typewriter Text — the code face. The LaTeX monospace companion to CMU
+// Serif, so code sits inside the prose in the same type family rather than
+// switching to the UI's JetBrains Mono. All four cuts ship in assets/fonts.
+@font-face {
+  font-family: "CMU Typewriter Text";
+  src: url("../fonts/cmuntt.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "CMU Typewriter Text";
+  src: url("../fonts/cmuntb.ttf") format("truetype");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "CMU Typewriter Text";
+  src: url("../fonts/cmunit.ttf") format("truetype");
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "CMU Typewriter Text";
+  src: url("../fonts/cmuntx.ttf") format("truetype");
+  font-weight: bold;
+  font-style: italic;
+  font-display: swap;
+}
+
+// ------------------------------------------------------------ Runtime tokens
+
+:root {
+  // Font stacks. UI everywhere, serif for document prose.
+  --theme-font-family: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace,
+    SFMono-Regular, Menlo, monospace;
+  --theme-font-family-doc: "CMU Serif", Georgia, "Times New Roman", serif;
+  --theme-font-family-code: "CMU Typewriter Text", "CMU Serif", ui-monospace,
+    SFMono-Regular, Menlo, monospace;
+
+  // Primitive scales, lifted from Archive's ui.css :root block.
+  --ui-radius-sm: 4px;
+  --ui-radius-md: 6px;
+  --ui-radius-lg: 8px;
+  --ui-dur-fast: 120ms;
+  --ui-dur-med: 200ms;
+  --ui-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ui-tracking-wide: 0.07em;
+
+  // --- Light: Archive's lightTheme, desaturated ------------------------------
+  // Straight from appleLight, except `accent`. Archive's light theme points
+  // accent at systemBlue; the greyscale build points it at `label` and lets
+  // underlines carry link affordance instead. Everything else in lightTheme
+  // was already neutral.
+  // One uniform surface: canvas, sidebar and document page are all
+  // systemBackground, so nothing reads as a tinted panel. The document is
+  // separated from the canvas by its shadow alone, the way an Archive PDF
+  // page is (PdfView.tsx: white page + --theme-panel-card-shadow).
+  --theme-default-bg: #ffffff;         // systemBackground
+  --theme-panel-bg: #ffffff;           // systemBackground
+  --theme-sidebar-bg: #ffffff;         // systemBackground
+  --theme-elevated-bg: #f2f2f7;        // systemGray6
+  --theme-hover-bg: #f2f2f7;           // systemGray6
+  --theme-inset-bg: rgba(0, 0, 0, 0.02);
+
+  --theme-border: #e5e5ea;             // systemGray5
+  --theme-border-hover: #c7c7cc;       // systemGray3
+  --theme-input-border: #d1d1d6;       // systemGray4
+
+  --theme-text: #000000;               // label
+  --theme-text-muted: rgba(60, 60, 67, 0.6);  // secondaryLabel
+  --theme-text-soft: #8e8e93;          // systemGray
+  --theme-text-dim: #aeaeb2;           // systemGray2
+  --theme-text-dimmest: #cbcbcd;       // systemGray2 @ 60% onto white
+
+  --theme-accent: #000000;             // greyscale: label, not systemBlue
+  // Links are the one colour the greyscale theme keeps, and they take
+  // Archive's own link blue (light.ts points --theme-link at systemBlue).
+  --theme-link: #007aff;               // appleLight systemBlue
+  --theme-selection-outline: rgba(0, 0, 0, 0.72);
+  // Text selection is deliberately its own token rather than a mix of
+  // --theme-selection-outline: that one is ayu's gold in dark, which tinted
+  // selected text yellow. Greyscale in both themes — black ink in light,
+  // white in dark — and kept faint.
+  --theme-selection-ink: #000000;
+  --theme-button-primary-bg: #000000;
+  --theme-button-primary-text: #ffffff;
+
+  --theme-panel-shadow: rgba(0, 0, 0, 0.1);
+  --theme-panel-inner-ring: rgba(0, 0, 0, 0.04);
+
+  // The page shadow Archive gives a PDF page: panelShadow at 55%, per
+  // --theme-panel-card-shadow in themes.ts.
+  --theme-panel-card-shadow: 0 8px 24px rgba(0, 0, 0, 0.055);
+
+  // Sliding hover fill. A translucent contrast tint, not an absolute surface
+  // color, so it reads correctly over both the white canvas and the grey
+  // sidebar — exactly as --theme-motion-highlight-bg does in Archive.
+  --theme-motion-highlight-bg: rgba(0, 0, 0, 0.045);
+
+  color-scheme: light;
+}
+
+// --- Dark: Ayu Dark ----------------------------------------------------------
+// Ported from ayuDark.ts, itself ported from ayu-theme/ayu-colors (dark).
+// Ayu's signature gold (#E6B450) carries accent and selection — that vividness
+// is the theme's identity, so unlike the light side it is not desaturated.
+[data-theme="dark"] {
+  --theme-default-bg: #0b0e14;         // ayu.editorBg
+  // Sidebar matches the canvas exactly — same uniform surface as the light
+  // theme. The document page keeps ayu.uiBg: Archive's PDF pages stay white
+  // in dark mode because they are photographic paper, but a text document
+  // has to follow the theme, so it lifts one ayu step instead.
+  --theme-panel-bg: #0d1017;           // ayu.uiBg
+  --theme-sidebar-bg: #0b0e14;         // ayu.editorBg
+  --theme-elevated-bg: #0f131a;        // ayu.panelBg
+  --theme-hover-bg: #131721;           // ayu.editorLine
+  --theme-inset-bg: rgba(0, 0, 0, 0.25);
+
+  --theme-border: #1e242e;             // ayu.border
+  --theme-border-hover: #333c4a;       // ayu.borderHover
+  --theme-input-border: #2d3644;       // ayu.inputBorder
+
+  --theme-text: #bfbdb6;               // ayu.fg
+  --theme-text-muted: #8a9199;         // ayu.fgMuted
+  --theme-text-soft: #6c7380;          // ayu.gutterActive
+  --theme-text-dim: #565b66;           // ayu.uiFg
+  --theme-text-dimmest: #3b3e46;       // ayu.uiFg @ 52% onto black
+
+  --theme-accent: #e6b450;             // ayu.accent
+  // Ayu's signature gold, exactly as ayuDark.ts points --theme-link at it.
+  --theme-link: #e6b450;               // ayu.accent
+  --theme-selection-outline: #e6b450;
+  --theme-selection-ink: #ffffff;
+  --theme-button-primary-bg: #e6b450;
+  --theme-button-primary-text: #0b0e14;
+
+  // ayu's own ui.panel.shadow is #00000080 — the canvas isn't pure black, so
+  // true dark elevation reads here (shadowInk: 'dark' in ayuDark.ts).
+  --theme-panel-shadow: rgba(0, 0, 0, 0.5);
+  --theme-panel-inner-ring: rgba(0, 0, 0, 0.35);
+  --theme-panel-card-shadow: 0 8px 24px rgba(0, 0, 0, 0.275);
+
+  --theme-motion-highlight-bg: rgba(255, 255, 255, 0.045);
+
+  color-scheme: dark;
+}
+
+// ------------------------------------------------- Just the Docs Sass values
+// Compile-time only. These give the no-JS / pre-hydration render the light
+// theme; custom.scss re-points the live surfaces at the --theme-* vars above.
+
+$color-scheme: light;
+$body-background-color: #ffffff;
+$body-heading-color: #000000;
+$body-text-color: #000000;
+$link-color: #000000;
+$nav-child-link-color: rgba(60, 60, 67, 0.6);
+$sidebar-color: #ffffff;
+$base-button-color: #f2f2f7;
+$btn-primary-color: #000000;
+$code-background-color: transparent;
+$feedback-color: #e5e5ea;
+$table-background-color: #ffffff;
+$search-background-color: #ffffff;
+$search-result-preview-color: #8e8e93;
+$border-color: #e5e5ea;
+
+$body-font-family: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace,
+  SFMono-Regular, Menlo, monospace;
+$mono-font-family: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace,
+  SFMono-Regular, Menlo, monospace;

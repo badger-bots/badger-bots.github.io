@@ -1,0 +1,940 @@
+// =============================================================================
+// Runtime theming layer
+//
+// Just the Docs bakes its palette in at compile time, so it can't follow a
+// toggle. This file re-points every visible surface at the --theme-* custom
+// properties defined in _sass/color_schemes/badgerbots.scss, which means the
+// light (greyscale) and dark (Ayu) palettes are one attribute apart:
+// <html data-theme="dark">.
+//
+// Imported last (via custom/custom.scss), so these win over the theme's own
+// rules at equal specificity.
+// =============================================================================
+
+// -------------------------------------------------------------- Page surface
+
+html {
+  background-color: var(--theme-default-bg);
+}
+
+body {
+  font-family: var(--theme-font-family);
+  font-weight: 400;
+  color: var(--theme-text);
+  background-color: var(--theme-default-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+// Text selection: a faint greyscale wash in both themes. Mixed ONTO the
+// background rather than laid over it as a translucent layer, so overlapping
+// line rects don't compound darker — the same trick Archive's index.css uses.
+::selection {
+  background: color-mix(in srgb, var(--theme-selection-ink) 8%, var(--theme-default-bg));
+}
+
+// ------------------------------------------------------------------- Sidebar
+
+// No chrome borders anywhere: the sidebar, both headers and the nav headings
+// are all borderless, so the only edge on the page is the document's shadow.
+.side-bar {
+  background-color: var(--theme-sidebar-bg);
+  border-right: 0;
+}
+
+.side-bar + .main .main-header {
+  background-color: var(--theme-sidebar-bg);
+
+  @include mq(md) {
+    background-color: var(--theme-default-bg);
+  }
+}
+
+.main-header,
+.site-header {
+  border-bottom: 0;
+}
+
+// The site title sits at the left end of the top bar. It keeps the nav rows'
+// type size and left inset so it lines up with the panel beneath it, and is
+// set apart by being black and bold.
+// ------------------------------------------------------------- Page shell
+//
+// Two columns, each with a header row on top:
+//
+//   [$top-gap]
+//   TOP BAR    site title            |  search bar + theme toggle
+//   [$body-gap]
+//   BODY       nav panel             |  document
+//
+// The site title lives in .side-bar's .site-header and the search in .main's
+// .main-header. They are separate elements in separate columns, so they only
+// read as one bar while both are offset from the top by $top-gap and share a
+// height ($header-height). Likewise the nav and the document only line up
+// while .site-nav and .main-content-wrap use the same $body-gap.
+
+@include mq(md) {
+  .side-bar,
+  .main {
+    padding-top: $top-gap;
+  }
+
+  // Restored to the theme's own header height, which .main-header also uses,
+  // so the title sits on the same line as the search bar.
+  .site-header {
+    height: $header-height;
+    min-height: $header-height;
+    max-height: $header-height;
+  }
+
+  // The theme's $sp-8 (48px) is replaced by the shared gap.
+  .site-nav {
+    padding-top: $body-gap;
+  }
+
+  .main-content-wrap {
+    padding-top: $body-gap;
+  }
+}
+
+.site-header {
+  align-items: center;
+}
+
+// The column's own left inset. It goes on the two blocks that make up the
+// left column rather than on each row, so the sliding highlight's band moves
+// in with the text instead of running out to the column's edge behind it.
+// (motion-highlight.js subtracts this padding when it measures, since the
+// highlight is absolutely positioned against #site-nav.)
+.site-nav,
+.site-header {
+  padding-left: $nav-column-inset;
+}
+
+.site-title.site-title {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: $nav-list-item-height-sm;
+  font-family: var(--theme-font-family);
+  font-weight: 700;
+  line-height: #{$nav-row-height-sm - 2px};
+  color: var(--theme-text);
+  letter-spacing: 0;
+
+  // Matches .nav-list-item's @include fs-4 / fs-3 at the same breakpoints, so
+  // the title is exactly the size of the rows under it.
+  @include fs-4;
+
+  @include mq(md) {
+    // Matches the nav links' padding-left, so the title's first glyph sits
+    // directly above theirs.
+    padding-left: 8px;
+    line-height: #{$nav-row-height - 2px};
+
+    @include fs-3;
+  }
+}
+
+// The theme paints hover on the title and the mobile menu button as a
+// left-fading gradient built from the old $feedback-color. The title takes no
+// hover treatment at all; the menu button keeps a flat token fill.
+.site-title:hover {
+  background-image: none;
+  background-color: transparent;
+  color: var(--theme-text);
+  opacity: 1;
+}
+
+.site-button:hover {
+  background-image: none;
+  background-color: var(--theme-hover-bg);
+}
+
+.site-footer {
+  color: var(--theme-text-dim);
+}
+
+.icon {
+  color: var(--theme-text-muted);
+}
+
+// ----------------------------------------------------------------- Nav lists
+
+// Tighter rows than the theme's $nav-list-item-height (32px at md, 48px
+// below). The left inset is left alone so the rows stay aligned with the
+// site title above them; only the vertical rhythm changes.
+.nav-list .nav-list-item .nav-list-link {
+  min-height: $nav-row-height-sm;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  // The theme insets these by $gutter-spacing (32px) on the left and
+  // $nav-list-item-height (32px) on the right; both become a symmetric 8px.
+  padding-right: 8px;
+  padding-left: 8px;
+  line-height: #{$nav-row-height-sm - 2px};
+  // Unselected rows sit a step further back than the muted body tone, so the
+  // black selected row reads as the only active thing in the column.
+  color: var(--theme-text-dim);
+
+  @include mq(md) {
+    min-height: $nav-row-height;
+    padding-right: 8px;
+    padding-left: 8px;
+    line-height: #{$nav-row-height - 2px};
+  }
+
+  // just-the-docs renders the CURRENT page's row as an <a> with no href, so
+  // it falls back to cursor: auto and shows a text caret. Every row points.
+  cursor: pointer;
+
+  // Hover is the sliding MotionHighlight and nothing else: the row's ink
+  // stays put, so only the selected row is ever darker than its neighbours.
+  &:hover {
+    background-image: none;
+    color: var(--theme-text-dim);
+  }
+
+  // The selected page is marked by ink alone: black and bold, with no fill
+  // of its own. A fill would sit above the sliding highlight and swallow it,
+  // so dropping it is also what lets the highlight run over the active row.
+  &.active {
+    font-weight: 700;
+    color: var(--theme-text);
+    background-image: none;
+    background-color: transparent;
+  }
+}
+
+// The expander chevron. The theme sizes it from $nav-list-item-height and
+// leaves its vertical placement to the static position; it is pinned to the
+// row here instead, sized to the row, and padded so the glyph comes out 16px
+// like every other icon in the UI (it was rendering at 12px). `right` lifts
+// it off the column's edge so it reads as part of its row.
+.nav-list .nav-list-item .nav-list-expander {
+  top: 0;
+  right: 8px;
+  width: $nav-row-height-sm;
+  height: $nav-row-height-sm;
+  // The glyph matches the row's own type size ($nav-glyph-size); the padding
+  // is whatever is left of the row, so the button keeps a full-row hit area
+  // around it.
+  padding: #{($nav-row-height-sm - $nav-glyph-size) * 0.5};
+  // It is a <button>, which otherwise takes the default arrow.
+  cursor: pointer;
+
+  @include mq(md) {
+    width: $nav-row-height;
+    height: $nav-row-height;
+    padding: #{($nav-row-height - $nav-glyph-size) * 0.5};
+  }
+}
+
+.nav-list .nav-list-item > .nav-list .nav-list-item .nav-list-link,
+.nav-list .nav-list-item > .nav-list .nav-list-item .nav-list-link:hover {
+  color: var(--theme-text-dim);
+}
+
+// A section that only groups its children (nav_link: false) renders as a
+// <span> carrying the same .nav-list-link class, so it inherits every row
+// style. It is not a destination, but it IS interactive — clicking it opens
+// or closes the section (assets/js/nav-groups.js) — so it points like the
+// rows around it. The `cursor: pointer` on .nav-list-link already covers
+// this; the rule stays as the place that states the intent.
+.nav-list .nav-list-item .nav-list-label {
+  cursor: pointer;
+}
+
+// Nested items need the selected colour restated: the child rule above is
+// more specific than the `.active` rule, so without this a selected child
+// page (the common case here) would stay muted grey.
+.nav-list .nav-list-item > .nav-list .nav-list-item .nav-list-link.active {
+  color: var(--theme-text);
+}
+
+.nav-list .nav-list-item .nav-list-expander {
+  color: var(--theme-text-dim);
+
+  // Hover changes nothing but the cursor — same as the rows beside it.
+  &:hover {
+    background-image: none;
+    color: var(--theme-text-dim);
+  }
+}
+
+.nav-category {
+  color: var(--theme-text-dim);
+  letter-spacing: var(--ui-tracking-wide);
+  text-transform: uppercase;
+  border-bottom: 0;
+}
+
+// ------------------------------------------------------------------ Aux nav
+
+.aux-nav .site-button {
+  color: var(--theme-text-muted);
+  border-radius: var(--ui-radius-sm);
+  transition: background-color var(--ui-dur-fast) ease, color var(--ui-dur-fast) ease;
+
+  &:hover {
+    color: var(--theme-text);
+    background-color: var(--theme-hover-bg);
+  }
+}
+
+// ------------------------------------------------------------------- Search
+
+// Geometry. The document's edges sit one container gutter inside .main
+// ($gutter-spacing at md, $gutter-spacing-sm below - see .main-content-wrap's
+// @include container), so the search bar, the results panel and the theme
+// toggle are all inset by that same gutter and line up with the page.
+//
+// The icons need one extra step. The toggle is a 28px .ui-icon-btn holding a
+// 16px glyph, so its glyph sits 6px inside the button's own right edge. For
+// the search glyph to have the SAME visual inset as the toggle's, it takes
+// the gutter plus that 6px rather than the gutter alone.
+
+.search-input {
+  font-family: var(--theme-font-family);
+  color: var(--theme-text);
+  // The surface belongs to .search-input-wrap, so the bar and the results
+  // panel are literally the same fill with no seam between them.
+  background-color: transparent;
+
+  // The faintest step in the palette — the placeholder should barely be
+  // there until it is replaced by a real query.
+  &::placeholder {
+    color: var(--theme-text-dimmest);
+  }
+
+  &:focus {
+    background-color: transparent;
+
+    + .search-label .search-icon {
+      color: var(--theme-text);
+    }
+  }
+}
+
+.search-label .search-icon {
+  // 16px, matching the theme toggle's glyph (the theme's own is 19.2px).
+  width: 16px;
+  height: 16px;
+  color: var(--theme-text-dim);
+}
+
+// Focusing must not move the icon. The theme animates .search-label's
+// padding-left down to 0.6rem and the input's to 2.3rem while .search-active
+// is set; both are pinned to their resting values and the transitions
+// dropped, so nothing eases between two identical numbers.
+.search-label,
+.search-active .search-label {
+  padding-left: calc(#{$gutter-spacing-sm} + 6px);
+  transition: none;
+
+  @include mq(md) {
+    // The box's 16px inner edge. .search-result rows use the same value, so
+    // this glyph sits exactly above the document icons in the results.
+    padding-left: 16px;
+  }
+}
+
+.search-input,
+.search-active .search-input {
+  // .search-active .search-input re-asserts $search-background-color at a
+  // higher specificity than the base rule above; without repeating it here
+  // the bar would go white inside the Ayu theme.
+  background-color: transparent;
+  // Glyph inset + the 16px glyph + a 16px gap.
+  padding-left: calc(#{$gutter-spacing-sm} + 38px);
+  transition: none;
+
+  @include mq(md) {
+    // 16px edge inset + the 16px glyph + a 16px gap, so the text clears the
+    // icon by the same amount the icon clears the box's edge.
+    padding-left: 48px;
+    // The toggle's room is taken out of the field's width below, so this is
+    // just the text's own trailing gap.
+    padding-right: 8px;
+  }
+}
+
+// One box: the bar and the menu share a fill and a width, and only the outer
+// corners are rounded.
+//
+// Neither half carries a shadow of its own. Two box-shadows cannot work here
+// whichever way they are stacked: with a shadow on each, the upper element's
+// cast darkens the lower one, and reversing the paint order just moves the
+// stain to the other half (the menu's 24px blur against an 8px offset reaches
+// 16px back UP over the bar). The shadow therefore belongs to their shared
+// parent, as a filter: drop-shadow traces the union of what .search paints, so
+// one unbroken shadow wraps the pair and nothing is cast between them.
+.search-input-wrap,
+.search-active .search-input-wrap {
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.search-active .search-input-wrap {
+  background-color: var(--theme-panel-bg);
+  border-radius: var(--ui-radius-lg) var(--ui-radius-lg) 0 0;
+}
+
+.search-active .search {
+  filter: drop-shadow(0 8px 24px var(--theme-panel-shadow));
+}
+
+.search-results {
+  // Above .search-input-wrap (the theme puts that on z-index 1) so the two
+  // halves meet cleanly. The shadow lives on .search — see above.
+  z-index: 2;
+  // The box's bottom inner edge, matching the 8px the sliding highlight
+  // leaves at the sides.
+  padding-bottom: 8px;
+  background-color: var(--theme-panel-bg);
+  border: 0;
+  border-radius: 0 0 var(--ui-radius-lg) var(--ui-radius-lg);
+  box-shadow: none;
+}
+
+@include mq(md) {
+  // .main-header is the positioning context for the theme toggle, but it must
+  // NOT become a stacking context: the theme gives it `z-index: 0`, and
+  // pairing that with `position: relative` lifted the whole header — its
+  // full-width white background included — above .search-overlay, so while
+  // the search dimmed the page the header stayed bright and read as a wide
+  // box around the bar. `z-index: auto` keeps it positioned without the
+  // stacking context, so the header dims with everything else and only the
+  // search's own layers stay lit.
+  .main-header {
+    position: relative;
+    z-index: auto;
+  }
+
+  // With the toggle taken out of the flow, .search (flex-grow: 1) is the only
+  // in-flow item and fills the header, so its box matches .main's. The bar
+  // and the menu can then both be inset one gutter from each edge and come
+  // out exactly the document's width.
+  .search {
+    position: relative !important;
+  }
+
+  .search-input-wrap,
+  .search-active .search-input-wrap,
+  .search-results,
+  .search-active .search-results {
+    right: $gutter-spacing;
+    left: $gutter-spacing;
+    width: auto;
+    max-width: none;
+  }
+
+  // Above .search (z-index 2) and .search-overlay (z-index 1), all three of
+  // which now share .main's stacking context.
+  // Mirrors the search glyph: 16px in from the box's right edge. The button
+  // is 28px around a 16px glyph, so its own edge sits 10px further out than
+  // the glyph — hence the gutter plus 10px rather than plus 16px.
+  .main-header .theme-toggle {
+    position: absolute;
+    top: 50%;
+    right: calc(#{$gutter-spacing} + 10px);
+    z-index: 3;
+    margin: 0;
+    transform: translateY(-50%);
+  }
+
+  // The bar's visible box still spans the document, but the input itself
+  // stops short of the toggle so it cannot cover the button. Stacking order
+  // alone would be enough, but ending the field is what the layout actually
+  // means: the toggle sits at the bar's right end, not under it.
+  .search-input {
+    width: calc(100% - 36px);
+  }
+}
+
+.search-results-list {
+  // The theme adds $sp-1 here, which stacked on the panel's own padding and
+  // made the gap under the last row 12px instead of the intended 8px.
+  margin-bottom: 0;
+  font-family: var(--theme-font-family);
+}
+
+// Hover is the sliding highlight (see motion-highlight.js), so rows drop
+// their own fill; keyboard navigation's .active keeps a flat one.
+.search-result {
+  // The box's 16px inner edge — this is what the search glyph aligns to.
+  padding-right: 16px;
+  padding-left: 16px;
+  color: var(--theme-text-muted);
+
+  &:hover {
+    background-color: transparent;
+  }
+
+  &.active {
+    background-color: var(--theme-elevated-bg);
+  }
+}
+
+.search-result-doc .search-result-icon {
+  color: var(--theme-text-dim);
+}
+
+.search-result-rel-url {
+  color: var(--theme-text-dim);
+}
+
+// The right-hand column of a result — the matched excerpt. `font-size` needs
+// !important because the theme sizes it with its fs-2 mixin, which emits one.
+.search-result-previews {
+  padding-left: 0;
+  font-family: var(--theme-font-family);
+  font-size: 14px !important;
+  line-height: 1.25;
+  color: var(--theme-text-muted);
+  border-left: 0;
+}
+
+.search-result-highlight {
+  color: var(--theme-text);
+  font-weight: 600;
+}
+
+.search-no-result {
+  padding-right: 16px;
+  padding-left: 16px;
+}
+
+.search-button {
+  color: var(--theme-text);
+  background-color: var(--theme-panel-bg);
+  border: 0;
+  box-shadow: 0 8px 24px var(--theme-panel-shadow);
+}
+
+.search-overlay {
+  background-color: var(--theme-panel-shadow);
+}
+
+// ------------------------------------------------------------------ Content
+
+// Document prose is CMU Serif — the LaTeX-paper face Archive renders notes in
+// (features/text/noteMarkdown.css). The UI around it stays JetBrains Mono.
+// The document is presented as a page, the way Archive presents a PDF page
+// (PdfView.tsx: a surface with a 3px radius lifted by
+// --theme-panel-card-shadow). On the uniform white canvas the shadow is the
+// only thing separating page from background.
+#main-content.main-content {
+  padding: 24px 24px 32px;
+  background: var(--theme-panel-bg);
+  border-radius: 8px;
+  box-shadow: var(--theme-panel-card-shadow);
+
+  @include mq(md) {
+    padding: 40px 48px 48px;
+  }
+}
+
+// The theme sets these to 1em (base.scss), which tracks the font size — 20px
+// at body size. A fixed 16px keeps the paragraph rhythm independent of it.
+// Left unscoped, matching the rule it replaces; it wins on source order,
+// since this file is imported after the theme's modules.
+p {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.main-content {
+  font-family: var(--theme-font-family-doc);
+  font-size: 20px;
+  line-height: 1.25;
+  color: var(--theme-text);
+
+  // The card supplies the page's top and bottom breathing room, so the first
+  // and last blocks don't add their own on top of it (as Archive's .note-md
+  // does).
+  > *:first-child {
+    margin-top: 0;
+  }
+
+  > *:last-child {
+    margin-bottom: 0;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--theme-font-family-doc);
+    color: var(--theme-text);
+  }
+
+  // just-the-docs sizes headings through its fs-* mixins, which emit
+  // `font-size: … !important`, so these have to match that weight to land.
+  // h2/h3 are restated because the theme's scale would otherwise put h2 at
+  // the same 24px as h1.
+  h1 {
+    margin-top: 32px;
+    margin-bottom: 16px;
+    font-size: 28px !important;
+    font-weight: 700;
+  }
+
+  h2 {
+    font-size: 21px !important;
+    font-weight: 700;
+  }
+
+  h3 {
+    font-size: 20px !important;
+    font-weight: 700;
+  }
+
+  // Links never change on hover — only the cursor does. The theme's own
+  // `a:not([class]):hover` fades the underline to rgba($link-color, 0.45) and
+  // out-specifies a plain `.main-content a`, so the resting values are
+  // restated across every interactive state to hold them.
+  a,
+  a:hover,
+  a:focus,
+  a:active,
+  a:visited {
+    color: var(--theme-link);
+    cursor: pointer;
+    // Fully opaque underline in the link's own colour — no dimmed tone — at a
+    // fixed 1px rather than the font-derived thickness browsers pick.
+    text-decoration: underline;
+    text-decoration-color: currentcolor;
+    text-decoration-style: solid;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+
+  // The heading anchor is an icon-only link; an underline under its svg is
+  // just a stray dash.
+  .anchor-heading {
+    text-decoration: none;
+  }
+
+  // Lists, matching Archive's rendered markdown (noteMarkdown.css). The theme
+  // hides the native markers and draws its own with ::before pseudo-elements;
+  // those are switched off so real list markers come back, which is what
+  // gives the disc / circle and decimal / lower-alpha nesting below.
+  ul,
+  ol {
+    padding-left: 24px;
+    margin: 0.5em 0;
+    list-style-position: outside;
+  }
+
+  ul {
+    list-style-type: disc;
+  }
+
+  ol {
+    list-style-type: decimal;
+  }
+
+  ol > li::before,
+  ul > li::before {
+    content: none;
+  }
+
+  li {
+    margin: 0.2em 0;
+  }
+
+  // The source of the inconsistent gaps: the theme gives every list a
+  // top margin, so a nested list added its 0.5em on top of the parent
+  // item's own margin while plain siblings got only the item margin. A
+  // nested list contributes nothing extra, so every gap in a list is the
+  // same regardless of depth.
+  li > ul,
+  li > ol {
+    margin: 0;
+  }
+
+  li::marker {
+    color: color-mix(in srgb, var(--theme-text) 25%, transparent);
+  }
+
+  li > ul {
+    list-style-type: circle;
+  }
+
+  li > ol {
+    list-style-type: lower-alpha;
+  }
+
+  // Task lists keep their checkbox instead of a marker; the theme's negative
+  // margin existed to clear its own ::before, which is gone now.
+  .task-list-item {
+    list-style: none;
+  }
+
+  .task-list-item-checkbox {
+    margin-left: 0;
+  }
+
+  // No rule down the side; the quote is set off by indent and colour alone.
+  blockquote {
+    padding-left: $sp-4;
+    color: var(--theme-text-muted);
+    border-left: 0;
+  }
+
+  // A horizontal rule is a requested divider rather than chrome, so it stays
+  // — as the faintest tone in the palette.
+  hr {
+    height: 1px;
+    background-color: var(--theme-border);
+    border: 0;
+  }
+
+  // Tables read as UI, not prose, so they take the mono face. Cell rules are
+  // gone; column separation comes from padding, and the header from weight.
+  table {
+    font-family: var(--theme-font-family);
+    font-size: 13px;
+    border-collapse: collapse;
+
+    th,
+    td {
+      border: 0;
+    }
+
+    thead th {
+      font-weight: 700;
+      color: var(--theme-text);
+      border: 0;
+    }
+  }
+
+  .table-wrapper {
+    background-color: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .anchor-heading svg {
+    color: var(--theme-text-dim);
+  }
+}
+
+.breadcrumb-nav-list-item {
+  font-family: var(--theme-font-family);
+  color: var(--theme-text-dim);
+
+  a {
+    color: var(--theme-text-muted);
+  }
+
+  &::before {
+    color: var(--theme-text-dim);
+  }
+}
+
+// --------------------------------------------------------------------- Code
+
+// CMU Typewriter Text — the LaTeX monospace companion to CMU Serif, so code
+// stays inside the document's type family. Code carries no surface at all:
+// no padding, no fill, no border, in blocks as well as inline.
+code,
+pre,
+.highlight,
+.highlighter-rouge {
+  font-family: var(--theme-font-family-code);
+  background-color: transparent;
+}
+
+.main-content {
+  code {
+    padding: 0;
+    font-size: 1em;
+    color: inherit;
+    background-color: transparent;
+    background-image: none;
+    border: 0;
+    border-radius: 0;
+  }
+
+  // Blocks: just indented text on the page. The theme's own padding, fill,
+  // border, radius and shadow are all cleared, including on the wrappers
+  // Jekyll nests around a highlighted block
+  // (div.highlighter-rouge > div.highlight > pre.highlight > code).
+  div.highlighter-rouge,
+  div.highlighter-rouge > .highlight,
+  figure.highlight,
+  pre.highlight,
+  pre {
+    padding: 0;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    font-size: 1em;
+    line-height: 1.25;
+    color: inherit;
+    background-color: transparent;
+    background-image: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  // Jekyll's line-number tables and the copy button sit on the same bare
+  // surface.
+  .highlight .table-wrapper,
+  .code-example {
+    background-color: transparent;
+    border: 0;
+    box-shadow: none;
+  }
+}
+
+// ------------------------------------------------------- Syntax highlighting
+
+// The bundled OneLight highlighting is neither greyscale nor legible on the
+// Ayu canvas, so each theme states its own.
+
+// Light: greyscale, to match the rest of the palette. Weight, italics and
+// three steps of grey carry the distinctions colour would normally make.
+.highlight {
+  .c, .c1, .cm, .cs, .cd { color: var(--theme-text-dim); font-style: italic; }
+  .k, .kd, .kn, .kp, .kr, .kv, .kt { color: var(--theme-text); font-weight: 700; }
+  .o, .ow { color: var(--theme-text-soft); }
+  .s, .s1, .s2, .sb, .sc, .sd, .se, .sh, .si, .sx, .sr, .sa { color: var(--theme-text-muted); }
+  .m, .mf, .mh, .mi, .mo, .mb, .mx, .il { color: var(--theme-text-muted); }
+  .n, .nx, .nv, .vi, .vg, .vc, .p, .pi { color: var(--theme-text); }
+  .nf, .fm, .nc, .nn, .nt, .na { color: var(--theme-text); font-weight: 700; }
+  .nb, .bp { color: var(--theme-text-soft); }
+  .err { color: var(--theme-text); text-decoration: underline wavy; }
+  .gi { color: var(--theme-text); }
+  .gd { color: var(--theme-text-soft); text-decoration: line-through; }
+}
+
+// Dark: ayu's syntax palette (ayu-theme/ayu-colors, dark variant), the same
+// source ayuDark.ts draws its tag/keyword accents from.
+[data-theme="dark"] .highlight {
+  .c, .c1, .cm, .cs, .cd { color: #acb6bf8c; font-style: italic; }
+  .k, .kd, .kn, .kp, .kr, .kv, .kt { color: #ff8f40; font-weight: 400; }
+  .o, .ow { color: #f29668; }
+  .s, .s1, .s2, .sb, .sc, .sd, .se, .sh, .si, .sx, .sr, .sa { color: #aad94c; }
+  .m, .mf, .mh, .mi, .mo, .mb, .mx, .il { color: #d2a6ff; }
+  .n, .nx, .nv, .vi, .vg, .vc { color: #bfbdb6; }
+  .nf, .fm { color: #ffb454; font-weight: 400; }
+  .nc, .nn { color: #59c2ff; font-weight: 400; }
+  .nt { color: #39bae6; font-weight: 400; }
+  .na { color: #ffb454; font-weight: 400; }
+  .nb, .bp { color: #e6b673; }
+  .p, .pi { color: #bfbdb6; }
+  .err { color: #d95757; }
+  .gi { color: #7fd962; }
+  .gd { color: #f26d78; text-decoration: none; }
+}
+
+// ------------------------------------------------------------------ Buttons
+
+.btn {
+  font-family: var(--theme-font-family);
+  border-radius: var(--ui-radius-md);
+  box-shadow: none;
+}
+
+.btn-primary {
+  color: var(--theme-button-primary-text);
+  background-color: var(--theme-button-primary-bg);
+  background-image: none;
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--theme-button-primary-bg) 85%, var(--theme-text));
+    background-image: none;
+  }
+}
+
+.btn-outline {
+  color: var(--theme-text);
+  border: 1px solid var(--theme-input-border);
+
+  &:hover {
+    color: var(--theme-text);
+    background-color: var(--theme-hover-bg);
+  }
+}
+
+// ----------------------------------------------------------------- Callouts
+
+// The four callouts declared in _config.yml keep their hues but sit on
+// theme-aware surfaces, so they don't glow white on the Ayu canvas.
+.callout {
+  font-family: var(--theme-font-family-doc);
+  border-radius: var(--ui-radius-md);
+}
+
+// ------------------------------------------------------------------- Labels
+
+.label,
+.label-blue,
+.label-green,
+.label-purple,
+.label-red,
+.label-yellow {
+  font-family: var(--theme-font-family);
+}
+
+// --------------------------------------------------------------- Scrollbars
+
+// Small, theme-tinted scrollbars — ported from Archive's index.css.
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--theme-text-dim) 30%, transparent) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--theme-text-dim) 30%, transparent);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+  transition: background-color 140ms ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--theme-text-dim) 60%, transparent);
+  background-clip: padding-box;
+}
+
+// --------------------------------------------------------- Remaining chrome
+
+// Anything the theme still draws a hairline on. Listed explicitly rather than
+// as a blanket `* { border: 0 }` so a border added deliberately later is not
+// silently swallowed.
+.side-bar,
+.main-header,
+.site-header,
+.nav-category,
+.search-results,
+.search-result-previews,
+.search-button,
+.search-input,
+.main-content .table-wrapper,
+.main-content table,
+.main-content th,
+.main-content td,
+.main-content blockquote,
+.main-content pre,
+.main-content code,
+.main-content div.highlighter-rouge,
+.main-content figure.highlight,
+.code-example {
+  border: 0;
+}

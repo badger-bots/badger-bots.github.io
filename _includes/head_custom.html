@@ -1,0 +1,26 @@
+{%- comment -%}
+  Overrides just-the-docs' empty head_custom.html.
+
+  The inline snippet runs before first paint so the page never flashes light
+  before switching to Ayu Dark. It is deliberately not in an external file:
+  a deferred or even a blocking network fetch would land after the first
+  paint. Everything else about the toggle lives in assets/js/theme-toggle.js.
+{%- endcomment -%}
+
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem('badgerbots-theme');
+      var dark = stored
+        ? stored === 'dark'
+        : window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+    } catch (e) {
+      /* storage unavailable — fall through to the light default */
+    }
+  })();
+</script>
+
+<script src="{{ '/assets/js/theme-toggle.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/motion-highlight.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/nav-groups.js' | relative_url }}" defer></script>

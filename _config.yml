@@ -1,18 +1,16 @@
-title: WisTex United
-description: A starter template for WisTex United Docs
+title: BadgerBots
+description: A starter template for BadgerBots Docs
 theme: just-the-docs
 
-url: https://github.com/wistex-united/wistex-united.github.io
+url: https://badger-bots.github.io
 # aux_links:
-#   Source Code: https://github.com/wistex-united/wistex-united.github.io
+#   Source Code: https://github.com/badger-bots/badger-bots.github.io
 
 nav_external_links:
-  - title: WisTex on GitHub
-    url: https://github.com/wistex-united
-  - title: BadgerBots Taskboard
-    url: https://app.clickup.com/9017973985/v/l/t/9017973985
-    
-color_scheme: wis-tex
+  - title: GitHub
+    url: https://github.com/badger-bots
+
+color_scheme: badgerbots
 
 callouts:
   hint:
@@ -35,5 +33,5 @@ callouts:
     color: red
     opacity: 0.15
 
-# logo: /assets/images/WisTex-United-Logo-250x250.png
-# favicon_ico: /assets/images/WisTex-United-Logo-220x220.png
+# logo: /assets/images/BadgerBots-Logo-250x250.png
+# favicon_ico: /assets/images/BadgerBots-Logo-220x220.png

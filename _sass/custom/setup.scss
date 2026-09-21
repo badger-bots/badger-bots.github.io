@@ -1,3 +1,36 @@
+// Wider documents. $content-width is just-the-docs' max width for .main; it is
+// declared !default in the theme's support/_variables.scss, so reassigning it
+// here (custom/setup is imported before the modules that consume it) widens
+// the document column.
+//
+// $media-queries is deliberately NOT redefined: it was already built from the
+// 50rem default, so the md/lg breakpoints stay where they are and the sidebar
+// still docks at the same viewport width. Only the column gets wider.
+$content-width: 60rem;
+
+// Vertical rhythm of the page shell. The top bar (site title on the left,
+// search + theme toggle on the right) is held off the top of the viewport by
+// $top-gap, and the body below it — the nav panel and the document — starts a
+// further $body-gap down. Both columns use the same two values, which is what
+// keeps the nav and the document aligned with each other.
+$top-gap: 24px;
+$body-gap: 24px;
+
+// Left-column row height. The theme's $nav-list-item-height / -sm (32px / 48px)
+// also drive the nav's LEFT INSET and the expander's hit area, so the vertical
+// rhythm gets its own pair of variables rather than shrinking those.
+// Left inset of the whole left column (title row + nav), applied to the
+// column rather than to each row.
+$nav-column-inset: 16px;
+
+// The expander chevron's glyph, sized to the nav rows' own text so the two
+// read as one line. $font-size-3 is what .nav-list-item resolves to at md
+// via @include fs-3.
+$nav-glyph-size: 14px;
+
+$nav-row-height: 28px;
+$nav-row-height-sm: 38px;
+
 // New variables
 
 $grey-md-000: #c5c4c8 !default;

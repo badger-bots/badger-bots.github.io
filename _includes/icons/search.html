@@ -1,0 +1,16 @@
+{%- comment -%}
+  Overrides just-the-docs' search icon symbol.
+
+  Swapped from Feather to lucide's `search` — the icon pack Archive uses via
+  lucide-react — so it matches the theme toggle in the same header. Carries
+  lucide's default attributes (24x24 viewBox, 2px round-capped strokes); the
+  rendered size is set in CSS so it matches the toggle's 16px.
+{%- endcomment -%}
+
+<symbol id="svg-search" viewBox="0 0 24 24">
+  <title>Search</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m21 21-4.34-4.34"></path>
+    <circle cx="11" cy="11" r="8"></circle>
+  </svg>
+</symbol>

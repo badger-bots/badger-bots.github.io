@@ -1,0 +1,10 @@
+{%- comment -%}
+  Overrides just-the-docs' nav_footer_custom.html to drop the default
+  "This site uses Just the Docs, a documentation theme for Jekyll." credit
+  from the bottom of the sidebar.
+
+  components/sidebar.html only substitutes this include when it renders as
+  something other than the empty string, so this file has to emit at least
+  one character — the newline below the comment is that character. Do not
+  add `-` to the closing tag, or the credit comes back.
+{%- endcomment %}

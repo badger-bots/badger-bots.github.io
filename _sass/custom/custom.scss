@@ -1,5 +1,10 @@
 @use "sass:math";
 
+// Theming + UI primitives ported from the Archive app. Imported first so the
+// responsive-media helpers below stay where they are.
+@import "./custom/theme";
+@import "./custom/ui";
+
 // Variables
 $max-width-xl: 1200px;
 $max-width-lg: 1000px;

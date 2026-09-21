@@ -1,4 +1,4 @@
-# WisTex Documentations
+# BadgerBots Documentation
 
-[Jekyll Site](https://wistex-united.github.io/)
+[Jekyll Site](https://badger-bots.github.io/)
 In process

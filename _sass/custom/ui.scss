@@ -1,0 +1,179 @@
+// =============================================================================
+// UI primitives ported from Archive (../archive/frontend/src/ui/ui.css)
+//
+// Two components: the sliding MotionHighlight used by the left nav, and the
+// icon button the theme toggle is built from.
+// =============================================================================
+
+// ------------------------------------------------------- Sliding highlight
+
+// A single rounded element that springs from item to item as the pointer
+// moves, instead of each row snapping its own background on and off. The
+// wrapper is `isolation: isolate` and the highlight sits at z-index -1, so
+// item content — text, the active row's own fill — always paints on top.
+//
+// The fill is a translucent contrast tint rather than an absolute surface
+// color, so the one value works over both the grey sidebar and the panels.
+.ui-motion-highlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  box-sizing: border-box;
+  width: 0;
+  height: 0;
+  background: var(--theme-motion-highlight-bg);
+  border-radius: var(--ui-radius-md);
+  opacity: 0;
+  pointer-events: none;
+
+  // Geometry is driven imperatively by the spring in motion-highlight.js;
+  // only the fade is left to CSS.
+  transition: opacity var(--ui-dur-fast) ease-out;
+}
+
+// The group wrapper. `isolation: isolate` keeps the negative z-index inside.
+// Position is NOT set here, because #search-results is already absolute and
+// re-declaring it would be redundant; each group states what it needs below.
+.ui-motion-highlight-group {
+  isolation: isolate;
+}
+
+#site-nav.ui-motion-highlight-group {
+  position: relative;
+}
+
+#search-results.ui-motion-highlight-group {
+  position: absolute;
+}
+
+// Search results inset the fill 8px from the menu's sides, so the highlight
+// floats inside the box rather than running edge to edge. The host element
+// still spans the full row — its measured geometry is what the spring
+// animates — and hands the paint to an inset ::before, the same split
+// Archive uses for its .ui-motion-highlight--overlay variant.
+#search-results .ui-motion-highlight {
+  background: transparent;
+}
+
+#search-results .ui-motion-highlight::before {
+  position: absolute;
+  inset: 0 8px;
+  content: "";
+  background: var(--theme-motion-highlight-bg);
+  border-radius: var(--ui-radius-md);
+}
+
+// Items sit above the highlight.
+#site-nav .nav-list-link,
+#search-results .search-result {
+  position: relative;
+  z-index: 1;
+}
+
+// The expander chevron is ALREADY absolutely positioned (pinned to the row's
+// right edge) by the theme, so it only needs a stacking level. Setting
+// `position` here would win on specificity — these selectors carry an id —
+// and drop the chevron back into the flow.
+//
+// z-index 2, not 1: the markup is <button class="nav-list-expander"> BEFORE
+// <a class="nav-list-link">, so at equal levels the later link wins the hit
+// test and a click on the chevron navigates instead of collapsing.
+#site-nav .nav-list-expander {
+  z-index: 2;
+}
+
+// Someone who prefers reduced motion gets a plain per-item hover fill
+// instead of a travelling element.
+@media (prefers-reduced-motion: reduce) {
+  .ui-motion-highlight {
+    display: none;
+  }
+
+  #site-nav .nav-list-link:hover,
+  #search-results .search-result:hover {
+    background-color: var(--theme-motion-highlight-bg);
+  }
+}
+
+// ---------------------------------------------------------- Icon buttons
+
+.ui-icon-btn {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: var(--theme-text-dim);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--ui-radius-sm);
+  transition: background var(--ui-dur-fast) ease, color var(--ui-dur-fast) ease,
+    border-color var(--ui-dur-fast) ease;
+
+  &:hover:not(:disabled) {
+    color: var(--theme-text);
+    background: var(--theme-hover-bg);
+  }
+
+  svg {
+    display: block;
+    flex-shrink: 0;
+  }
+}
+
+// ------------------------------------------------------------ Theme toggle
+
+// Lives in the main header, between the search box and the aux nav. Both
+// glyphs are in the DOM at once and cross-fade, so the swap has no reflow
+// and no flash of a missing icon.
+.theme-toggle {
+  // `.search` is `flex-grow: 1`, so the toggle already lands on the right of
+  // the header; `margin-left: auto` only matters if search is ever disabled,
+  // where the header's first child is an empty div that does not grow.
+  position: relative;
+  margin: 0 8px 0 auto;
+  align-self: center;
+
+  // `inset: 0; margin: auto` centres both glyphs in the button without
+  // spending the `transform` property, which the cross-fade animates.
+  .theme-toggle-icon {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    transition: opacity var(--ui-dur-med) var(--ui-ease-out),
+      transform var(--ui-dur-med) var(--ui-ease-out);
+  }
+
+  // Light is showing → offer the moon. Dark is showing → offer the sun.
+  .theme-toggle-moon {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+
+  .theme-toggle-sun {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.6);
+  }
+}
+
+[data-theme="dark"] .theme-toggle {
+  .theme-toggle-moon {
+    opacity: 0;
+    transform: rotate(90deg) scale(0.6);
+  }
+
+  .theme-toggle-sun {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle .theme-toggle-icon {
+    transition: none;
+  }
+}
